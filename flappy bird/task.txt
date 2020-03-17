@@ -1,0 +1,30 @@
+bird at waiting screen
+
+mouseDown -> gameStart
+
+birdJump 
+- mouseDown: birdUp
+- NoMouse: birdDown
+V = v0 + delta_t *g
+y = y0 + delta_t*v
+
+
+pipe 
+- for to draw the pipe to screen
+- if pipe reach x = 0, pop()
+- if pipe[i] reach x = width/2, push new pipe
+random pipe y 
+pipeDOwn y = pipeUp y + gap;
+
+collision
+nhu collision cua ponggame
+
+2 button
+
+start  -> restart if die
+rank
+
+
+point, x bird > pipe point++ 
+
+
