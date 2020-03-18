@@ -28,6 +28,11 @@ bird_MidFlap.src = "./src/bird-midflap.png";
 const messageImage = new Image();
 messageImage.src = './src/message.png';
 
+//restart
+const playButton = new Image();
+playButton.src = './src/playbtn.png';
+
+
 var change = 0,wing_state = 0;
 
 
@@ -55,6 +60,14 @@ const birdJump = () => {
     birdCor.angle -= birdRotationAngle;
 }
 
+//audio 
+const pointPlus = new Audio();
+pointPlus.src = './src/Everything/sfx_point.wav';
+const die = new Audio();
+die.src = './src/Everything/sfx_hit.mp3';
+const wing = new Audio();
+wing.src = './src/Everything/sfx_wing.wav';
+
 const setBirdAngle = () => {
     if (v > 0){
         if (birdCor.angle <= 70)
@@ -69,13 +82,18 @@ const setBirdAngle = () => {
 var isRunning = false;
 
 canvas.addEventListener('click',() => {
-    if (!isRunning){
-        cancelAnimationFrame(readyZone);
-        draw();
-        gameState = 2;
-        isRunning = true;
-    } else {
-        birdJump();
+    switch(gameState){
+        case 1:
+            gameState = 2;
+            break;
+        case 2:
+            wing.play();
+            birdJump();
+            break;
+        case 3:
+            gameState = 1;
+            gameReset();
+            break;
     }
 });
 
@@ -89,10 +107,24 @@ let gameState = 1;
 
 const scoreDisplay= () => {
     ctx.drawImage(gameOverImage,50,100);
-    ctx.drawImage(scoreBoard,30,200);
+    ctx.drawImage(scoreBoard,35,170);
+    ctx.drawImage(playButton,70,300,playButton.width/2,playButton.height/2);
     ctx.fillStyle = "#fff";
     ctx.font = "25px Open Sans";
-    ctx.fillText(score,230,canvas.height/2);
+    ctx.fillText(score,230,canvas.height/2-30);
+}
+
+const gameReset = () => {
+    birdCor.y = 250;
+    birdCor.angle = 0;
+    change = 0;
+    v = 1;
+    pipe.splice(0,pipe.length);
+    pipe[0] = {
+        x: canvas.width,
+        y: 0
+    }
+    score = 0;
 }
 
 
@@ -150,7 +182,7 @@ const draw = () => {
         //up score if  pass pipe
         if(pipe[i].x == birdCor.x){
             score++;
-            //score.play();
+            pointPlus.play();
         }
     }
     //time 
@@ -194,22 +226,26 @@ const draw = () => {
     let nextBirdPos;
     if (birdCor.y+bird.width/2 >= canvas.height - fg.height){
             gameState = 3;
+            die.play();
             return;
     }
     let cornerBird = bird.height/2;
     for (let i =0; i < pipe.length;i++){
-        if (pipe[i].x >= birdCor.x-bird.width && pipe[i].x <= birdCor.x+bird.width){
+        if ((pipe[i].x >= birdCor.x-bird.width/2-4 && pipe[i].x <= birdCor.x+bird.width/2) || (pipe[i].x + pipeUp.width >= birdCor.x-bird.width/2-4 && pipe[i].x +pipeUp.width <= birdCor.x+bird.width/2)){
             nextBirdPos = birdCor.y+cornerBird;
             console.log(nextBirdPos);
-            console.log(pipeUp.height+pipe[i].y);
+            console.log(pipe[i].y+pipeGap);
             console.log('------');
-            if (nextBirdPos >= pipe[i].y+pipeUp.height+pipeGap){
+            if (nextBirdPos >= pipe[i].y+pipeGap-4){
                 gameState = 3;
+                die.play();
                 return;
             }
-            nextBirdPos -=cornerBird*2;
+            nextBirdPos -= cornerBird*2;
+            
             if (nextBirdPos >= 0 && nextBirdPos <=pipe[i].y+pipeUp.height){
                 gameState = 3;
+                die.play();
                 return;
             }
             
